@@ -10,7 +10,7 @@ app = Flask(__name__)
 # route to handle the landing page of a website.
 @app.route('/')
 def start_here():
-    return "Hi! This is the home page."
+    return render_template("index.html")
 
 # route to display a simple web page
 @app.route('/hello')
@@ -27,7 +27,15 @@ def greet_person():
 
     compliment = choice(AWESOMENESS)
 
-    return render_template("compliment.html", person=player, compliment=compliment)
+    animal_dictionary = { "balloonicorn": "http://th03.deviantart.net/fs70/PRE/i/2012/186/3/4/balloonicorn_by_hokutto-d564r4n.png", 
+                        "pegasus": "https://s-media-cache-ak0.pinimg.com/736x/a0/71/30/a07130ac0f2e7f4577f7caafce459228.jpg", 
+                        "hippogriff": "http://i215.photobucket.com/albums/cc158/susansargies07/hippogriff.jpg", 
+                        "kirby": "http://vignette4.wikia.nocookie.net/kirby/images/0/01/KDCol_Kirby_K64.png/revision/latest?cb=20120627075127&path-prefix=en"}
+
+    animal_key = request.args.get("animal")
+    animal_src = animal_dictionary[animal_key]
+
+    return render_template("compliment.html", person=player, compliment=compliment, animal_src=animal_src)
 
 @app.route('/game')
 def show_game_form():
@@ -37,12 +45,18 @@ def show_game_form():
     elif response == "no":
         return render_template("goodbye.html")
 
-@app.route('/madlib')
+@app.route('/madlib', methods=['POST', 'GET'])
 def show_madlib():
-    person = request.args.get("person")
-    color = request.args.get("color")
-    noun = request.args.get("noun")
-    adjective = request.args.get("adjective")
+    if request.method == 'POST':
+        person = request.form.get("person")
+        color = request.form.get("color")
+        noun = request.form.get("noun")
+        adjective = request.form.get("adjective")
+    elif request.method == 'GET':
+        person = request.args.get("person")
+        color = request.args.get("color")
+        noun = request.args.get("noun")
+        adjective = request.args.get("adjective")
 
     madlib_files = ["madlib.html", "madlib2.html"]
     madlib = choice(madlib_files)
